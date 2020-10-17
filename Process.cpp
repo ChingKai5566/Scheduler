@@ -1,7 +1,7 @@
 #include "Process.h"
 
-Process::Process(int pid, int AT, int TC, int CB, int IO) {
-  this->pid = pid;
+Process::Process(int pid_, int AT, int TC, int CB, int IO)  {
+  this->pid = pid_;
   this->start_time = AT;
   this->total_time = TC;
   this->cb_max = CB;

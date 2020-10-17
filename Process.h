@@ -25,5 +25,5 @@ public:
   int e_next_time;    // next event's time
   int rem;            // remaining time
   process_type state; // process state
-  const int prio = 4;
+  int prio;
 };
