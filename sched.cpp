@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+
+#include "Event.cpp"
 #include "Process.cpp"
 
 using namespace std;
@@ -34,7 +36,6 @@ void get_process(char* filename) {
 
   while (infile >> AT >> TC >> CB >> IO) {
     Process* p = new Process(num, AT, TC, CB, IO);
-    p->print();
     process_list.push_back(p);
     num++;
   }

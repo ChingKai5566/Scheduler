@@ -1,4 +1,5 @@
 #include "Event.h"
+#include "Process.h"
 
 Event::Event(int timestamp, Process* p, process_type state) {
   /* initialize */

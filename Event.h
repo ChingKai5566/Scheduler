@@ -1,3 +1,6 @@
+#ifndef _event_h
+#define _event_h
+
 #include "Process.h"
 
 class Event {
@@ -22,3 +25,5 @@ class Event {
   process_type get_new_state();
   void set_new_state(process_type);
 };
+
+#endif

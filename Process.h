@@ -1,9 +1,7 @@
-#include <stdio.h>
-#include <string>
+#ifndef _process_h
+#define _process_h
 
-using namespace std;
-
-typedef enum process_type_t { CREATED, READY, RUNNING, BLOCKED } process_type;
+#include "Process_Type.h"
 
 class Process {
  private:
@@ -15,8 +13,7 @@ class Process {
   int total_time;  // TC
 
   /* process instruction */
-  int e_last_time;     // last event's time
-  int e_next_time;     // next event's time
+  int event_time;
   int rem;             // remaining time
   process_type state;  // process state
   int prio;
@@ -27,11 +24,18 @@ class Process {
   /* constructor */
   Process(int, int, int, int, int);
 
-  /* method */
+  /* getter and setter */
   void init(int, int, int, int, int);
   void set_rem(int);
   int get_rem();
   void set_state(process_type);
   process_type get_state();
+  int get_prio();
+  void set_prio();
+
+  /* method */
+  void create_event(int, Process*, process_type);
   void print();
 };
+
+#endif
