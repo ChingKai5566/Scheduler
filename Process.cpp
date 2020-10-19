@@ -6,12 +6,10 @@ Process::Process(int pid, int AT, int TC, int CB, int IO) {
   init(pid, AT, TC, CB, IO);
 
   /* initialize instruction */
-  set_rem(this->total_time);
+  set_rem(total_time);
+  set_event_time(start_time);
   set_state(CREATED);
-  set_prio();
-
-  /* add event*/
-  create_event(this->start_time, this, CREATED);
+  set_prio(1);
 }
 
 void Process::init(int pid, int AT, int TC, int CB, int IO) {
@@ -22,12 +20,20 @@ void Process::init(int pid, int AT, int TC, int CB, int IO) {
   this->ib_max = IO;
 }
 
+int Process::get_pid() {
+  return pid;
+}
+
+void Process::set_pid(int pid) {
+  this->pid = pid;
+}
+
 void Process::set_rem(int time) {
-  this->rem = time;
+  rem = time;
 }
 
 int Process::get_rem() {
-  return this->rem;
+  return rem;
 }
 
 void Process::set_state(process_type state) {
@@ -35,22 +41,21 @@ void Process::set_state(process_type state) {
 }
 
 process_type Process::get_state() {
-  return this->state;
+  return state;
 }
 
 int Process::get_prio() {
-  return this->prio;
+  return prio;
 }
 
-void Process::set_prio() {
-  this->prio = 1;  // need to change to random number
+void Process::set_prio(int num) {
+  this->prio = num;  // need to change to random number
 }
 
-void Process::create_event(int time, Process* p, process_type state) {
-  Event* e = new Event(time, this, this->state);
-  e->get_process()->print();
+int Process::get_event_time() {
+  return this->event_time;
 }
 
-void Process::print() {
-  cout << this->pid << " " << this->start_time << " " << show_state(this->get_state()) << endl;
+void Process::set_event_time(int event_time) {
+  this->event_time = event_time;
 }

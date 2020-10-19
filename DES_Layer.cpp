@@ -3,11 +3,31 @@
 DES_Layer::DES_Layer() {}
 
 void DES_Layer::add_event(Event* e) {
-  this->event_queue.push(e);
+  int new_timestamp = e->get_timestamp();
+  auto it = event_queue.begin();
+
+  for (; it != event_queue.end(); it++) {
+    Event* cur_event = *it;
+
+    if (new_timestamp < cur_event->get_timestamp()) {
+      break;
+    }
+  }
+  event_queue.insert(it, e);
 }
 
 Event* DES_Layer::get_event() {
-  Event* e = this->event_queue.top();
-  this->event_queue.pop();
-  return e;
+  Event* cur_event = event_queue.front();
+  event_queue.erase(event_queue.begin());
+  return cur_event;
+}
+
+void DES_Layer::show_event_q() {
+  cout << "ShowEventQ: ";
+
+  for (auto e : event_queue) {
+    cout << e->get_process()->get_event_time() << ":" << e->get_process()->get_pid() << " ";
+  }
+
+  cout << endl;
 }

@@ -1,7 +1,6 @@
 #ifndef _process_type_h
 #define _process_type_h
 
-
 #include <string>
 
 using namespace std;

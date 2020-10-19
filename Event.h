@@ -13,9 +13,9 @@ class Event {
 
  public:
   /* constructor */
-  Event(int, Process*, process_type);
+  Event(int, Process*, int);
 
-  /* method */
+  /* setter and getter */
   void set_timestamp(int);
   int get_timestamp();
   void set_process(Process*);
@@ -24,6 +24,9 @@ class Event {
   process_type get_old_state();
   process_type get_new_state();
   void set_new_state(process_type);
+
+  /* method */
+  void set_state(int);
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef _process_h
 #define _process_h
 
-#include "Process_Type.h"
+#include "process_type.cpp"
 
 class Process {
  private:
@@ -26,16 +26,18 @@ class Process {
 
   /* getter and setter */
   void init(int, int, int, int, int);
+  int get_pid();
+  void set_pid(int pid);
   void set_rem(int);
   int get_rem();
   void set_state(process_type);
   process_type get_state();
   int get_prio();
-  void set_prio();
+  void set_prio(int);
+  int get_event_time();
+  void set_event_time(int event_time);
 
   /* method */
-  void create_event(int, Process*, process_type);
-  void print();
 };
 
 #endif
