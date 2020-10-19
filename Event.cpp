@@ -5,7 +5,7 @@ Event::Event(int timestamp, Process* p, int type) {
   /* initialize */
   set_timestamp(timestamp);
   set_process(p);
-  set_state(1);
+  set_transition(1);
 }
 
 void Event::set_timestamp(int timestamp) {
@@ -35,11 +35,14 @@ void Event::set_old_state(process_type old_state) {
 process_type Event::get_new_state() {
   return this->new_state;
 }
+
 void Event::set_new_state(process_type new_state) {
   this->new_state = new_state;
 }
 
-void Event::set_state(int number) {
+void Event::set_transition(int number) {
+  this->transition = number;
+
   switch (number) {
     case 1:
       set_old_state(CREATED);
@@ -64,4 +67,8 @@ void Event::set_state(int number) {
     default:
       break;
   }
+}
+
+int Event::get_transition() {
+  return this->transition;
 }

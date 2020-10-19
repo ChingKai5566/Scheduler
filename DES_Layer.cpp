@@ -22,11 +22,17 @@ Event* DES_Layer::get_event() {
   return cur_event;
 }
 
+int DES_Layer::get_next_event_time() {
+  Event* next_event = event_queue.front();
+  return next_event->get_timestamp();
+}
+
 void DES_Layer::show_event_q() {
   cout << "ShowEventQ: ";
 
   for (auto e : event_queue) {
-    cout << e->get_process()->get_event_time() << ":" << e->get_process()->get_pid() << " ";
+    cout << e->get_process()->get_event_time() << ":"
+         << e->get_process()->get_pid() << " ";
   }
 
   cout << endl;

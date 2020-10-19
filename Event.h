@@ -7,6 +7,7 @@ class Event {
  private:
   /* instruction */
   int timestamp;
+  int transition;
   Process* process;
   process_type old_state;
   process_type new_state;
@@ -24,9 +25,11 @@ class Event {
   process_type get_old_state();
   process_type get_new_state();
   void set_new_state(process_type);
+  void set_transition(int);
+  int get_transition();
 
   /* method */
-  void set_state(int);
+  
 };
 
 #endif

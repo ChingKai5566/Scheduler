@@ -16,5 +16,6 @@ class DES_Layer {
   /* method */
   void add_event(Event*);
   Event* get_event();
+  int get_next_event_time();
   void show_event_q();
 };

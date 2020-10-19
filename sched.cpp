@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -27,13 +28,14 @@ void check_flag(int argc, char** argv);
 void get_process(char* filename);
 vector<int> get_randvals(char* filename);
 int get_random(int max);
+void simulation();
 
 /* program starts from here */
 int main(int argc, char* argv[]) {
   // invocation
   check_flag(argc, argv);
 
-    // random number file
+  // random number file
   randvals = get_randvals(argv[argc - 1]);
 
   // initialize
@@ -44,6 +46,63 @@ int main(int argc, char* argv[]) {
 
   if (e_flag == 1) {
     des_layer->show_event_q();
+  }
+
+  // start simulation
+  simulation();
+}
+
+void simulation() {
+  int current_time = 0, prev_state_time = 0;
+  bool call_scheduler;
+  Event* evt;
+  while (true) {
+    evt = des_layer->get_event();
+
+    if (evt == nullptr) {
+      break;
+    }
+
+    Process* proc = evt->get_process();
+    current_time = evt->get_timestamp();
+    prev_state_time = current_time - proc->get_event_time();
+
+    switch (evt->get_transition()) {
+      case 1:
+        // created -> ready
+        call_scheduler = true;
+        break;
+      case 2:
+        // ready -> running
+        break;
+      case 3:
+        // running -> blocked
+        call_scheduler = true;
+        break;
+      case 4:
+        // blocked -> ready
+        call_scheduler = true;
+        break;
+      case 5:
+        // running -> ready
+        call_scheduler = true;
+        break;
+    }
+
+    if (call_scheduler) {
+      if (des_layer->get_next_event_time() == current_time) {
+        continue;
+      }
+      call_scheduler = false;
+      /*
+      if (current_running_process == nullptr) {
+        current_running_process = scheduler->get_next_process();
+        if (current_running_process == nullptr) {
+          continue;
+        }
+      }
+      */
+    }
   }
 }
 
