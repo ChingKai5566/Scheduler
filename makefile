@@ -1,5 +1,5 @@
 run:
-	g++ sched.cpp -std=c++2a -o a.out
-	./a.out -v -e ${a} ../rfile
+	g++ *.cpp -std=c++2a -o a.out
+	./a.out -v -e -sF ${a} ../rfile
 clean:
 	rm *.out

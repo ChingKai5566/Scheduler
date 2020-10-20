@@ -29,7 +29,6 @@ class Event {
   int get_transition();
 
   /* method */
-  
 };
 
 #endif

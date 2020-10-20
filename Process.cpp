@@ -1,6 +1,5 @@
 #include "Process.h"
 #include <iostream>
-#include "Event.h"
 
 Process::Process(int pid, int AT, int TC, int CB, int IO) {
   init(pid, AT, TC, CB, IO);
