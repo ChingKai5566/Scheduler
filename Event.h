@@ -3,6 +3,26 @@
 
 #include "Process.h"
 
+static string show_transition(int type) {
+  switch (type) {
+    case 1:
+      return "CREATED -> READY";
+      break;
+    case 2:
+      return "READY -> RUNNG";
+      break;
+    case 3:
+      return "RUNNG -> BLOCKED";
+      break;
+    case 4:
+      return "BLOCKED -> READY";
+      break;
+    default:
+      return "RUNNG -> READY";
+      break;
+  }
+}
+
 class Event {
  private:
   /* instruction */
@@ -29,6 +49,7 @@ class Event {
   int get_transition();
 
   /* method */
+  void print_event();
 };
 
 #endif

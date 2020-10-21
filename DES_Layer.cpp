@@ -17,8 +17,11 @@ void DES_Layer::add_event(Event* e) {
 }
 
 Event* DES_Layer::get_event() {
+  if (event_queue.empty()) {
+    return nullptr;
+  }
   Event* cur_event = event_queue.front();
-  event_queue.erase(event_queue.begin());
+  event_queue.pop_front();
   return cur_event;
 }
 
@@ -31,9 +34,14 @@ void DES_Layer::show_event_q() {
   cout << "ShowEventQ: ";
 
   for (auto e : event_queue) {
-    cout << e->get_process()->get_event_time() << ":"
-         << e->get_process()->get_pid() << " ";
+    cout << e->get_process()->get_event_time() << ":" << e->get_process()->get_pid() << " ";
   }
 
   cout << endl;
+}
+
+void DES_Layer::show_q() {
+  for (auto e : event_queue) {
+    cout << e->get_timestamp() << ":" << e->get_process()->get_pid() << ":" << show_state(e->get_new_state()) << " ";
+  }
 }

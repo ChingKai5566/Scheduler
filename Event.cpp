@@ -1,43 +1,29 @@
 #include "Event.h"
 
+#include <iostream>
+
 Event::Event(int timestamp, Process* p, int type) {
   /* initialize */
   set_timestamp(timestamp);
   set_process(p);
-  set_transition(1);
+  set_transition(type);
 }
 
-void Event::set_timestamp(int timestamp) {
-  this->timestamp = timestamp;
-}
+void Event::set_timestamp(int timestamp) { this->timestamp = timestamp; }
 
-int Event::get_timestamp() {
-  return timestamp;
-}
+int Event::get_timestamp() { return timestamp; }
 
-void Event::set_process(Process* p) {
-  process = p;
-}
+void Event::set_process(Process* p) { process = p; }
 
-Process* Event::get_process() {
-  return process;
-}
+Process* Event::get_process() { return process; }
 
-process_type Event::get_old_state() {
-  return old_state;
-}
+process_type Event::get_old_state() { return old_state; }
 
-void Event::set_old_state(process_type old_state) {
-  this->old_state = old_state;
-}
+void Event::set_old_state(process_type old_state) { this->old_state = old_state; }
 
-process_type Event::get_new_state() {
-  return this->new_state;
-}
+process_type Event::get_new_state() { return this->new_state; }
 
-void Event::set_new_state(process_type new_state) {
-  this->new_state = new_state;
-}
+void Event::set_new_state(process_type new_state) { this->new_state = new_state; }
 
 void Event::set_transition(int number) {
   this->transition = number;
@@ -68,6 +54,9 @@ void Event::set_transition(int number) {
   }
 }
 
-int Event::get_transition() {
-  return this->transition;
+int Event::get_transition() { return this->transition; }
+
+void Event::print_event() {
+  cout << "Event: ProcessID is " << process->get_pid() << " time: " << timestamp << " transition type: " << transition
+       << " state: " << show_state(old_state) << " => " << show_state(new_state) << endl;
 }
