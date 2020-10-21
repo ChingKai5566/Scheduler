@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 }
 
 void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int>& randvals) {
-  int current_time = 0, prev_state_time = 0;
+  int current_time = 0, interval_time = 0;
   bool call_scheduler;
   Process* current_proc = nullptr;
   Event* evt;
@@ -79,7 +79,7 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
     current_time = evt->get_timestamp();
 
     // time interval of this process
-    prev_state_time = current_time - proc->get_event_time();
+    interval_time = current_time - proc->get_event_time();
 
     // update process event time
     proc->set_event_time(current_time);
@@ -89,7 +89,7 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
         // created -> ready
         // print event state transition
         if (v_flag) {
-          cout << current_time << " " << proc->get_pid() << " " << prev_state_time << ": " << show_transition(evt->get_transition()) << endl;
+          cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << endl;
         }
         scheduler->add_process(proc);
         call_scheduler = true;
@@ -100,21 +100,45 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
         // count cb time
         {
           int proc_cb_max = proc->get_cb_max();
-          proc->set_cb(get_random(proc_cb_max, ofs, randvals));
-        }
+          int cb = get_random(proc_cb_max, ofs, randvals);
 
-        if (v_flag) {
-          cout << current_time << " " << proc->get_pid() << " " << prev_state_time << ": " << show_transition(evt->get_transition())
-               << " cb=" << proc->get_cb() << " rem=" << proc->get_rem() << " prio=" << proc->get_prio() << endl;
-        }
+          if (v_flag) {
+            cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << " cb=" << cb
+                 << " rem=" << proc->get_rem() << " prio=" << proc->get_prio() << endl;
+          }
 
+          int next_event_time = current_time + cb;
+          Event* new_event = new Event(next_event_time, proc, 3);
+          add_event(new_event, des_layer);
+        }
         break;
       case 3:
         // running -> blocked
+        {   // count rem time: rem - interval_time
+          int rem = proc->get_rem() - interval_time;
+          proc->set_rem(rem);
+        }
+        {
+          // count io time
+
+          int proc_ib_max = proc->get_ib_max();
+          int ib = get_random(proc_ib_max, ofs, randvals);
+
+          if (v_flag) {
+            cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << " ib=" << ib
+                 << " rem=" << proc->get_rem() << endl;
+          }
+
+          int next_event_time = current_time + ib;
+          Event* new_event = new Event(next_event_time, proc, 4);
+          add_event(new_event, des_layer);
+        }
+
         call_scheduler = true;
         break;
       case 4:
         // blocked -> ready
+        cout << "case 4 here!!!!!!!!!!!" << endl;
         call_scheduler = true;
         break;
       case 5:
@@ -153,7 +177,7 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
 void add_event(Event* new_event, DES_Layer* des_layer) {
   if (e_flag) {
     cout << " AddEvent(" << new_event->get_timestamp() << ":" << new_event->get_process()->get_pid() << ":" << show_state(new_event->get_new_state())
-         << ") ";
+         << "): ";
     des_layer->show_q();
   }
 

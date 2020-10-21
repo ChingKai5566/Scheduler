@@ -1,8 +1,6 @@
 #include "Scheduler.h"
 
-void FCFS_Scheduler::add_process(Process* proc) {
-  run_queue.push_back(proc);
-}
+void FCFS_Scheduler::add_process(Process* proc) { run_queue.push_back(proc); }
 
 Process* FCFS_Scheduler::get_next_process() {
   if (run_queue.empty()) {
@@ -14,16 +12,16 @@ Process* FCFS_Scheduler::get_next_process() {
   return proc;
 }
 
-string FCFS_Scheduler::get_scheduler() {
-  return "FCFS";
-}
+string FCFS_Scheduler::get_scheduler() { return "FCFS"; }
 
 void FCFS_Scheduler::show_run_queue() {
   cout << "SCHED(" << run_queue.size() << "):";
-  
+
   for (auto p : run_queue) {
     cout << " " << p->get_pid() << ":" << p->get_event_time();
   }
 
   cout << endl;
 }
+
+void FCFS_Scheduler::pop_process() { run_queue.pop_front(); }

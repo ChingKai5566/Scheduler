@@ -17,7 +17,7 @@ static string show_state(process_type state) {
       return "RUNNG";
       break;
     case BLOCKED:
-      return "BLOCKED";
+      return "BLOCK";
       break;
     default:
       return "DONE";
@@ -39,8 +39,8 @@ class Process {
   int rem;              // remaining time
   process_type state;   // process state
   int prio;
-  int cb;
-  int ib;
+  int cb;   // not use
+  int ib;   // not use
 
   /* result */
   int finish_time;

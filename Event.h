@@ -12,10 +12,10 @@ static string show_transition(int type) {
       return "READY -> RUNNG";
       break;
     case 3:
-      return "RUNNG -> BLOCKED";
+      return "RUNNG -> BLOCK";
       break;
     case 4:
-      return "BLOCKED -> READY";
+      return "BLOCK -> READY";
       break;
     default:
       return "RUNNG -> READY";
