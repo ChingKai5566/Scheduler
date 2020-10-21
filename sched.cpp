@@ -87,7 +87,6 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
     switch (evt->get_transition()) {
       case 1:
         // created -> ready
-        // print event state transition
         if (v_flag) {
           cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << endl;
         }
@@ -139,6 +138,10 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
       case 4:
         // blocked -> ready
         cout << "case 4 here!!!!!!!!!!!" << endl;
+        if (v_flag) {
+          cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << endl;
+        }
+        scheduler->add_process(proc);
         call_scheduler = true;
         break;
       case 5:
