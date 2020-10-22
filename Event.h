@@ -17,10 +17,14 @@ static string show_transition(int type) {
     case 4:
       return "BLOCK -> READY";
       break;
-    default:
+    case 5:
       return "RUNNG -> READY";
       break;
+    case 6:
+      return "Done";
+      break;
   }
+  return "";
 }
 
 class Event {

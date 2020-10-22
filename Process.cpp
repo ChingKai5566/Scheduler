@@ -14,6 +14,7 @@ void Process::init(int pid, int AT, int TC, int CB, int IO) {
   set_event_time(start_time);
   set_state(CREATED);
   set_prio(1);
+  set_d_prio(0);
   set_cb(0);
   set_ib(0);
   set_finish_time(0);
@@ -58,6 +59,12 @@ void Process::set_prio(int num) {
   this->prio = num;   // need to change to random number
 }
 
+int Process::get_d_prio() { return d_prio; }
+
+void Process::set_d_prio(int num) {
+  this->d_prio = num;   // need to change to random number
+}
+
 int Process::get_cb() { return cb; }
 
 void Process::set_cb(int num) {
@@ -87,6 +94,9 @@ void Process::set_cpu_wait_time(int time) { this->cpu_wait_time = time; }
 int Process::get_cpu_wait_time() { return this->cpu_wait_time; }
 
 void Process::print_process() {
-  cout << "Process " << pid << " time: " << event_time << " rem: " << rem << " state: " << show_state(state) << " prio: " << prio << " cb: " << cb
-       << " ib: " << ib << endl;
+  this->turnaround_time = event_time - start_time;
+
+  printf("%04d: %4d %4d %4d %4d %1d | %5d %5d %5d %5d\n", pid, start_time, total_time, cb_max, ib_max, prio,
+         event_time,   // last time stamp
+         event_time - start_time, io_time, cpu_wait_time);
 }

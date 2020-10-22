@@ -23,5 +23,3 @@ void FCFS_Scheduler::show_run_queue() {
 
   cout << endl;
 }
-
-void FCFS_Scheduler::pop_process() { run_queue.pop_front(); }

@@ -1,9 +1,11 @@
 #ifndef _process_h
 #define _process_h
 
+#include <stdio.h>
+
 #include <string>
 using namespace std;
-typedef enum process_type_t { CREATED, READY, RUNNING, BLOCKED, DONE } process_type;
+typedef enum process_type_t { CREATED, READY, RUNNG, BLOCK, DONE } process_type;
 
 static string show_state(process_type state) {
   switch (state) {
@@ -13,10 +15,10 @@ static string show_state(process_type state) {
     case READY:
       return "READY";
       break;
-    case RUNNING:
+    case RUNNG:
       return "RUNNG";
       break;
-    case BLOCKED:
+    case BLOCK:
       return "BLOCK";
       break;
     default:
@@ -39,11 +41,12 @@ class Process {
   int rem;              // remaining time
   process_type state;   // process state
   int prio;
+  int d_prio;
   int cb;   // not use
   int ib;   // not use
 
   /* result */
-  int finish_time;
+  int finish_time;   // not use
   int turnaround_time;
   int io_time;
   int cpu_wait_time;
@@ -72,6 +75,8 @@ class Process {
   process_type get_state();
   int get_prio();
   void set_prio(int);
+  int get_d_prio();
+  void set_d_prio(int);
   void set_cb(int);
   int get_cb();
   void set_ib(int);

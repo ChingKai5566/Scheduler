@@ -14,7 +14,6 @@ class Scheduler {
   virtual Process* get_next_process() = 0;
   virtual string get_scheduler() = 0;
   virtual void show_run_queue() = 0;
-  virtual void pop_process() = 0;
 };
 
 class FCFS_Scheduler : public Scheduler {
@@ -24,7 +23,24 @@ class FCFS_Scheduler : public Scheduler {
   Process* get_next_process();
   string get_scheduler();
   void show_run_queue();
-  void pop_process();
+};
+
+class LCFS_Scheduler : public Scheduler {
+ public:
+  list<Process*> run_queue;
+  void add_process(Process*);
+  Process* get_next_process();
+  string get_scheduler();
+  void show_run_queue();
+};
+
+class SRTF_Scheduler : public Scheduler {
+ public:
+  list<Process*> run_queue;
+  void add_process(Process*);
+  Process* get_next_process();
+  string get_scheduler();
+  void show_run_queue();
 };
 
 #endif
