@@ -1,8 +1,12 @@
 #include "Scheduler.h"
 
-void FCFS_Scheduler::add_process(Process* proc) { run_queue.push_back(proc); }
+RR_Scheduler::RR_Scheduler(int q) {
+  this->quantum = q;
+}
 
-Process* FCFS_Scheduler::get_next_process() {
+void RR_Scheduler::add_process(Process* proc) { run_queue.push_back(proc); }
+
+Process* RR_Scheduler::get_next_process() {
   if (run_queue.empty()) {
     return nullptr;
   }
@@ -12,9 +16,9 @@ Process* FCFS_Scheduler::get_next_process() {
   return proc;
 }
 
-string FCFS_Scheduler::get_scheduler() { return "FCFS"; }
+string RR_Scheduler::get_scheduler() { return "RR " + to_string(this->quantum); }
 
-void FCFS_Scheduler::show_run_queue() {
+void RR_Scheduler::show_run_queue() {
   cout << "SCHED(" << run_queue.size() << "):";
 
   for (auto p : run_queue) {
@@ -23,4 +27,3 @@ void FCFS_Scheduler::show_run_queue() {
 
   cout << endl;
 }
-

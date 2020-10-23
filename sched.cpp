@@ -23,8 +23,9 @@ void check_flag(int argc, char** argv, string& s_value);
 void get_process(char* filename, int& max_prio, int& ofs, vector<int>& randvals, list<Process*>& process_list, DES_Layer* des_layer);
 vector<int> get_randvals(char* filename);
 int get_random(int& max, int& ofs, vector<int>& randvals);
-void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int>& randvals, int& current_time, int& cpu_time, int& io_time);
-Scheduler* getScheduler(string& s_value);
+void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int>& randvals, int& current_time, int& cpu_time, int& io_time,
+                int& quantum);
+Scheduler* getScheduler(string& s_value, int& q, int& max_prio);
 void add_event(Event* new_event, DES_Layer* des_layer);
 
 /* program starts from here */
@@ -46,7 +47,7 @@ int main(int argc, char* argv[]) {
 
   // initialize
   des_layer = new DES_Layer();
-  scheduler = getScheduler(s_value);
+  scheduler = getScheduler(s_value, quantum, max_prio);
 
   // readfile and create process
   get_process(argv[argc - 2], max_prio, ofs, randvals, process_list, des_layer);
@@ -57,7 +58,7 @@ int main(int argc, char* argv[]) {
 
   int current_time, cpu_time, io_time;
   // start simulation
-  simulation(scheduler, des_layer, ofs, randvals, current_time, cpu_time, io_time);
+  simulation(scheduler, des_layer, ofs, randvals, current_time, cpu_time, io_time, quantum);
 
   double cpu_util = 0;
   double io_util = 0;
@@ -82,7 +83,8 @@ int main(int argc, char* argv[]) {
   printf("SUM: %d %.2lf %.2lf %.2lf %.2lf %.3lf\n", current_time, cpu_util, io_util, avg_turnaround, avg_waittime, throughput);
 }
 
-void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int>& randvals, int& current_time, int& cpu_time, int& io_time) {
+void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int>& randvals, int& current_time, int& cpu_time, int& io_time,
+                int& quantum) {
   current_time = 0;
   cpu_time = 0;
   io_time = 0;
@@ -112,8 +114,9 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
         if (v_flag) {
           cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << endl;
         }
-        proc->set_state(READY);
+
         scheduler->add_process(proc);
+        proc->set_state(READY);
         call_scheduler = true;
         break;
 
@@ -121,15 +124,19 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
         // ready -> running
 
         // count cpu wait time
-        {
-          int current_cpu_wait_time = proc->get_cpu_wait_time();
-          proc->set_cpu_wait_time(current_cpu_wait_time + interval_time);
-        }
+        proc->set_cpu_wait_time(proc->get_cpu_wait_time() + interval_time);
 
         // count cb time
         {
-          int proc_cb_max = proc->get_cb_max();
-          int cb = get_random(proc_cb_max, ofs, randvals);
+          int cb = 0;
+          if (proc->get_cb() == 0) {
+            int proc_cb_max = proc->get_cb_max();
+            cb = get_random(proc_cb_max, ofs, randvals);
+
+            proc->set_cb(cb);
+          } else {
+            cb = proc->get_cb();
+          }
 
           // done state
           bool done = false;
@@ -139,27 +146,33 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
           }
 
           if (v_flag) {
-            cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << " cb=" << cb
-                 << " rem=" << proc->get_rem() << " prio=" << proc->get_d_prio() << endl;
+            cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition())
+                 << " cb=" << proc->get_cb() << " rem=" << proc->get_rem() << " prio=" << proc->get_d_prio() << endl;
           }
 
           proc->set_state(RUNNG);
 
-          int next_event_time = current_time + cb;
+          if (quantum >= cb) {
+            int next_event_time = current_time + cb;
 
-          if (done) {
-            Event* new_event = new Event(next_event_time, proc, 6);
+            if (done) {
+              Event* new_event = new Event(next_event_time, proc, 6);
+              add_event(new_event, des_layer);
+              continue;
+            }
+
+            Event* new_event = new Event(next_event_time, proc, 3);
             add_event(new_event, des_layer);
-            continue;
-          }
+          } else {
+            int next_event_time = current_time + quantum;
 
-          Event* new_event = new Event(next_event_time, proc, 3);
-          add_event(new_event, des_layer);
+            Event* new_event = new Event(next_event_time, proc, 5);
+            add_event(new_event, des_layer);
+          }
         }
         break;
       case 3:
         // running -> blocked
-
         // io count
         io_count++;
         if (io_count == 1) {
@@ -168,6 +181,9 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
 
         // count rem time: rem - interval_time
         proc->set_rem(proc->get_rem() - interval_time);
+
+        // update cb
+        proc->set_cb(proc->get_cb() - interval_time);
 
         // add cpu use time
         cpu_time += interval_time;
@@ -195,7 +211,6 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
         break;
       case 4:
         // blocked -> ready
-
         // count io
         io_count--;
         if (io_count == 0) {
@@ -211,20 +226,39 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
         if (v_flag) {
           cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << endl;
         }
-        proc->set_state(READY);
+
         scheduler->add_process(proc);
+        proc->set_state(READY);
         call_scheduler = true;
         break;
       case 5:
         // running -> ready
+        // count rem time: rem - interval_time
+        proc->set_rem(proc->get_rem() - interval_time);
+
+        // update cb
+        proc->set_cb(proc->get_cb() - interval_time);
+
+        // add cpu use time
+        cpu_time += interval_time;
+
+        // count
+        if (v_flag) {
+          cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition())
+               << " cb=" << proc->get_cb() << " rem=" << proc->get_rem() << " prio=" << proc->get_d_prio() << endl;
+        }
+        current_proc = nullptr;
+        scheduler->add_process(proc);
         proc->set_state(READY);
         call_scheduler = true;
         break;
       case 6:
         // running -> done
-
         // add cpu use time
         cpu_time += interval_time;
+
+        // update cb
+        proc->set_cb(proc->get_cb() - interval_time);
 
         if (v_flag) {
           cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << endl;
@@ -263,8 +297,7 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
 
 void add_event(Event* new_event, DES_Layer* des_layer) {
   if (e_flag) {
-    cout << " AddEvent(" << new_event->get_timestamp() << ":" << new_event->get_process()->get_pid() << ":" << show_state(new_event->get_new_state())
-         << "): ";
+    cout << " AddEvent(" << new_event->get_timestamp() << ":" << new_event->get_process()->get_pid() << ":" << new_event->event_type << "): ";
     des_layer->show_q();
   }
 
@@ -278,7 +311,7 @@ void add_event(Event* new_event, DES_Layer* des_layer) {
   }
 }
 
-Scheduler* getScheduler(string& s_value) {
+Scheduler* getScheduler(string& s_value, int& q, int& max_prio) {
   if (s_value == "F") {
     return new FCFS_Scheduler();
   }
@@ -289,6 +322,31 @@ Scheduler* getScheduler(string& s_value) {
 
   if (s_value == "S") {
     return new SRTF_Scheduler();
+  }
+
+  if (s_value[0] == 'R') {
+    q = atoi(s_value.substr(1).c_str());
+    return new RR_Scheduler(q);
+  }
+
+  if (s_value[0] == 'P') {
+    q = 0;
+    int idx = 1;
+    while (idx != s_value.length() && s_value[idx] != ':') {
+      q = q * 10 + (s_value[idx] - '0');
+      idx++;
+    }
+    if (idx == s_value.length()) {
+      return new PRIO_Scheduler(q, max_prio);
+    }
+    idx++;
+    max_prio = 0;
+    while (idx != s_value.length()) {
+      max_prio = max_prio * 10 + (s_value[idx] - '0');
+      idx++;
+    }
+
+    return new PRIO_Scheduler(q, max_prio);
   }
 
   return nullptr;

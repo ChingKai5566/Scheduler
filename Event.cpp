@@ -32,26 +32,32 @@ void Event::set_transition(int number) {
     case 1:
       set_old_state(CREATED);
       set_new_state(READY);
+      event_type = "READY";
       break;
     case 2:
       set_old_state(READY);
       set_new_state(RUNNG);
+      event_type = "RUNNG";
       break;
     case 3:
       set_old_state(RUNNG);
       set_new_state(BLOCK);
+      event_type = "BLOCK";
       break;
     case 4:
       set_old_state(BLOCK);
       set_new_state(READY);
+      event_type = "READY";
       break;
     case 5:
       set_old_state(RUNNG);
       set_new_state(READY);
+      event_type = "PREEMPT";
       break;
     case 6:
       set_old_state(RUNNG);
       set_new_state(BLOCK);
+      event_type = "Done";
     default:
       break;
   }

@@ -42,7 +42,7 @@ class Process {
   process_type state;   // process state
   int prio;
   int d_prio;
-  int cb;   // not use
+  int cb;
   int ib;   // not use
 
   /* result */

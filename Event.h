@@ -40,6 +40,8 @@ class Event {
   /* constructor */
   Event(int, Process*, int);
 
+  string event_type;
+
   /* setter and getter */
   void set_timestamp(int);
   int get_timestamp();

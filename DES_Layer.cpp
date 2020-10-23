@@ -42,6 +42,6 @@ void DES_Layer::show_event_q() {
 
 void DES_Layer::show_q() {
   for (auto e : event_queue) {
-    cout << e->get_timestamp() << ":" << e->get_process()->get_pid() << ":" << show_state(e->get_new_state()) << " ";
+    cout << e->get_timestamp() << ":" << e->get_process()->get_pid() << ":" << e->event_type << " ";
   }
 }
