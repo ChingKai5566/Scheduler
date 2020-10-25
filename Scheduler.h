@@ -70,4 +70,22 @@ class PRIO_Scheduler : public Scheduler {
   void show_run_queue();
   bool q_isEmpty(vector<list<Process*>>*);
 };
+
+class PREPRIO_Scheduler : public Scheduler {
+ public:
+  int quantum, max_prio;
+
+  vector<list<Process*>>* active_queue;
+  vector<list<Process*>>* expired_queue;
+  // vector<list<Process*>> q1;
+  // vector<list<Process*>> q2;
+
+  PREPRIO_Scheduler(int, int);
+  void add_process(Process*);
+  Process* get_next_process();
+  string get_scheduler();
+  void show_run_queue();
+  bool q_isEmpty(vector<list<Process*>>*);
+};
+
 #endif

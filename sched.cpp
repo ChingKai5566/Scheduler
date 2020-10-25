@@ -24,9 +24,10 @@ void get_process(char* filename, int& max_prio, int& ofs, vector<int>& randvals,
 vector<int> get_randvals(char* filename);
 int get_random(int& max, int& ofs, vector<int>& randvals);
 void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int>& randvals, int& current_time, int& cpu_time, int& io_time,
-                int& quantum);
-Scheduler* getScheduler(string& s_value, int& q, int& max_prio);
+                int& quantum, bool& is_preempt);
+Scheduler* getScheduler(string& s_value, int& q, int& max_prio, bool& is_preempt);
 void add_event(Event* new_event, DES_Layer* des_layer);
+void remove_event(Event* event, DES_Layer* des_layer);
 
 /* program starts from here */
 int main(int argc, char* argv[]) {
@@ -37,6 +38,7 @@ int main(int argc, char* argv[]) {
   int quantum = INT_MAX;
   int ofs = -1;
   int max_prio = 4;
+  bool is_preempt = false;
   list<Process*> process_list;
 
   // invocation
@@ -47,7 +49,7 @@ int main(int argc, char* argv[]) {
 
   // initialize
   des_layer = new DES_Layer();
-  scheduler = getScheduler(s_value, quantum, max_prio);
+  scheduler = getScheduler(s_value, quantum, max_prio, is_preempt);
 
   // readfile and create process
   get_process(argv[argc - 2], max_prio, ofs, randvals, process_list, des_layer);
@@ -58,7 +60,7 @@ int main(int argc, char* argv[]) {
 
   int current_time, cpu_time, io_time;
   // start simulation
-  simulation(scheduler, des_layer, ofs, randvals, current_time, cpu_time, io_time, quantum);
+  simulation(scheduler, des_layer, ofs, randvals, current_time, cpu_time, io_time, quantum, is_preempt);
 
   double cpu_util = 0;
   double io_util = 0;
@@ -84,7 +86,7 @@ int main(int argc, char* argv[]) {
 }
 
 void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int>& randvals, int& current_time, int& cpu_time, int& io_time,
-                int& quantum) {
+                int& quantum, bool& is_preempt) {
   current_time = 0;
   cpu_time = 0;
   io_time = 0;
@@ -115,9 +117,48 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
           cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << endl;
         }
 
+        // is preempt
+        if (is_preempt && current_proc != nullptr) {
+          // current running process
+
+          bool prio_preempt = current_proc->get_d_prio() < proc->get_d_prio();
+          bool time_preempt = false;
+          // check event queue
+          for (Event* e : des_layer->event_queue) {
+            if (e->get_timestamp() == current_time && e->get_process() == current_proc) {
+              if (v_flag) {
+                cout << "---> PRIO preemption " << current_proc->get_pid() << " by " << proc->get_pid() << " ? " << prio_preempt
+                     << " TS=" << e->get_timestamp() << " now=" << current_time << ") --> NO" << endl;
+              }
+            }
+
+            if (e->get_timestamp() > current_time && e->get_process() == current_proc) {
+              time_preempt = true;
+              if (!prio_preempt) {
+                if (v_flag) {
+                  cout << "---> PRIO preemption " << current_proc->get_pid() << " by " << proc->get_pid() << " ? " << prio_preempt
+                       << " TS=" << e->get_timestamp() << " now=" << current_time << ") --> NO" << endl;
+                }
+              } else {
+                if (v_flag) {
+                  cout << "---> PRIO preemption " << current_proc->get_pid() << " by " << proc->get_pid() << " ? " << prio_preempt
+                       << " TS=" << e->get_timestamp() << " now=" << current_time << ") --> YES" << endl;
+                }
+
+                // remove
+                remove_event(e, des_layer);
+                // add
+                Event* new_event = new Event(current_time, e->get_process(), 5);
+                add_event(new_event, des_layer);
+              }
+            }
+          }
+        }
         scheduler->add_process(proc);
-        proc->set_state(READY);
+
         call_scheduler = true;
+        proc->set_state(READY);
+
         break;
 
       case 2:
@@ -144,6 +185,8 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
             cb = proc->get_rem();
             done = true;
           }
+
+          proc->set_cb(cb);
 
           if (v_flag) {
             cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition())
@@ -194,7 +237,7 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
           int ib = get_random(proc_ib_max, ofs, randvals);
 
           if (v_flag) {
-            cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << " ib=" << ib
+            cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << "  ib=" << ib
                  << " rem=" << proc->get_rem() << endl;
           }
 
@@ -227,9 +270,48 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
           cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition()) << endl;
         }
 
+        // is preempt
+        if (is_preempt && current_proc != nullptr) {
+          // current running process
+
+          bool prio_preempt = current_proc->get_d_prio() < proc->get_d_prio();
+          bool time_preempt = false;
+          // check event queue
+          for (Event* e : des_layer->event_queue) {
+            if (e->get_timestamp() == current_time && e->get_process() == current_proc) {
+              if (v_flag) {
+                cout << "---> PRIO preemption " << current_proc->get_pid() << " by " << proc->get_pid() << " ? " << prio_preempt
+                     << " TS=" << e->get_timestamp() << " now=" << current_time << ") --> NO" << endl;
+              }
+            }
+
+            if (e->get_timestamp() > current_time && e->get_process() == current_proc) {
+              time_preempt = true;
+              if (!prio_preempt) {
+                if (v_flag) {
+                  cout << "---> PRIO preemption " << current_proc->get_pid() << " by " << proc->get_pid() << " ? " << prio_preempt
+                       << " TS=" << e->get_timestamp() << " now=" << current_time << ") --> NO" << endl;
+                }
+              } else {
+                if (v_flag) {
+                  cout << "---> PRIO preemption " << current_proc->get_pid() << " by " << proc->get_pid() << " ? " << prio_preempt
+                       << " TS=" << e->get_timestamp() << " now=" << current_time << ") --> YES" << endl;
+                }
+
+                // remove
+                remove_event(e, des_layer);
+                // add
+                Event* new_event = new Event(current_time, e->get_process(), 5);
+                add_event(new_event, des_layer);
+              }
+            }
+          }
+        }
         scheduler->add_process(proc);
-        proc->set_state(READY);
+
         call_scheduler = true;
+        proc->set_state(READY);
+
         break;
       case 5:
         // running -> ready
@@ -245,7 +327,7 @@ void simulation(Scheduler* scheduler, DES_Layer* des_layer, int& ofs, vector<int
         // count
         if (v_flag) {
           cout << current_time << " " << proc->get_pid() << " " << interval_time << ": " << show_transition(evt->get_transition())
-               << " cb=" << proc->get_cb() << " rem=" << proc->get_rem() << " prio=" << proc->get_d_prio() << endl;
+               << "  cb=" << proc->get_cb() << " rem=" << proc->get_rem() << " prio=" << proc->get_d_prio() << endl;
         }
         current_proc = nullptr;
         scheduler->add_process(proc);
@@ -311,7 +393,22 @@ void add_event(Event* new_event, DES_Layer* des_layer) {
   }
 }
 
-Scheduler* getScheduler(string& s_value, int& q, int& max_prio) {
+void remove_event(Event* event, DES_Layer* des_layer) {
+  if (e_flag) {
+    cout << "RemoveEvent(" << event->get_process()->get_pid() << "):  " << event->get_timestamp() << ":" << event->get_process()->get_pid();
+  }
+
+  // remove event from des_layer
+  des_layer->remove_event(event);
+
+  if (e_flag) {
+    cout << "==> ";
+    des_layer->show_q();
+    cout << endl;
+  }
+}
+
+Scheduler* getScheduler(string& s_value, int& q, int& max_prio, bool& is_preempt) {
   if (s_value == "F") {
     return new FCFS_Scheduler();
   }
@@ -347,6 +444,27 @@ Scheduler* getScheduler(string& s_value, int& q, int& max_prio) {
     }
 
     return new PRIO_Scheduler(q, max_prio);
+  }
+
+  if (s_value[0] == 'E') {
+    is_preempt = true;
+    q = 0;
+    int idx = 1;
+    while (idx != s_value.length() && s_value[idx] != ':') {
+      q = q * 10 + (s_value[idx] - '0');
+      idx++;
+    }
+    if (idx == s_value.length()) {
+      return new PREPRIO_Scheduler(q, max_prio);
+    }
+    idx++;
+    max_prio = 0;
+    while (idx != s_value.length()) {
+      max_prio = max_prio * 10 + (s_value[idx] - '0');
+      idx++;
+    }
+
+    return new PREPRIO_Scheduler(q, max_prio);
   }
 
   return nullptr;

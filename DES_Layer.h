@@ -19,4 +19,5 @@ class DES_Layer {
   int get_next_event_time();
   void show_event_q();
   void show_q();
+  void remove_event(Event*);
 };

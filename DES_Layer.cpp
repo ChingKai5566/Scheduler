@@ -30,6 +30,19 @@ int DES_Layer::get_next_event_time() {
   return next_event->get_timestamp();
 }
 
+void DES_Layer::remove_event(Event* e) {
+  auto it = event_queue.begin();
+
+  for (; it != event_queue.end(); it++) {
+    Event* cur_event = *it;
+
+    if (cur_event == e) {
+      break;
+    }
+  }
+  event_queue.erase(it);
+}
+
 void DES_Layer::show_event_q() {
   cout << "ShowEventQ: ";
 
