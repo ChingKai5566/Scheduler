@@ -27,3 +27,7 @@ void RR_Scheduler::show_run_queue() {
 
   cout << endl;
 }
+
+bool RR_Scheduler::test_preempt() {
+  return false;
+}

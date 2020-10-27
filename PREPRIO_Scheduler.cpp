@@ -98,3 +98,7 @@ void PREPRIO_Scheduler::show_run_queue() {
     cout << "switched queues" << endl;
   }
 }
+
+bool PREPRIO_Scheduler::test_preempt() {
+  return true;
+}

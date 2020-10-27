@@ -37,3 +37,7 @@ void SRTF_Scheduler::show_run_queue() {
 
   cout << endl;
 }
+
+bool SRTF_Scheduler::test_preempt() {
+  return false;
+}

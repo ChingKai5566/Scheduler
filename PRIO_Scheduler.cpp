@@ -98,3 +98,7 @@ void PRIO_Scheduler::show_run_queue() {
     cout << "switched queues" << endl;
   }
 }
+
+bool PRIO_Scheduler::test_preempt() {
+  return false;
+}

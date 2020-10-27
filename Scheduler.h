@@ -14,6 +14,7 @@ class Scheduler {
   virtual Process* get_next_process() = 0;
   virtual string get_scheduler() = 0;
   virtual void show_run_queue() = 0;
+  virtual bool test_preempt() = 0;
 };
 
 class FCFS_Scheduler : public Scheduler {
@@ -23,6 +24,7 @@ class FCFS_Scheduler : public Scheduler {
   Process* get_next_process();
   string get_scheduler();
   void show_run_queue();
+  bool test_preempt();
 };
 
 class LCFS_Scheduler : public Scheduler {
@@ -32,6 +34,7 @@ class LCFS_Scheduler : public Scheduler {
   Process* get_next_process();
   string get_scheduler();
   void show_run_queue();
+  bool test_preempt();
 };
 
 class SRTF_Scheduler : public Scheduler {
@@ -41,6 +44,7 @@ class SRTF_Scheduler : public Scheduler {
   Process* get_next_process();
   string get_scheduler();
   void show_run_queue();
+  bool test_preempt();
 };
 
 class RR_Scheduler : public Scheduler {
@@ -52,6 +56,7 @@ class RR_Scheduler : public Scheduler {
   Process* get_next_process();
   string get_scheduler();
   void show_run_queue();
+  bool test_preempt();
 };
 
 class PRIO_Scheduler : public Scheduler {
@@ -69,6 +74,7 @@ class PRIO_Scheduler : public Scheduler {
   string get_scheduler();
   void show_run_queue();
   bool q_isEmpty(vector<list<Process*>>*);
+  bool test_preempt();
 };
 
 class PREPRIO_Scheduler : public Scheduler {
@@ -86,6 +92,7 @@ class PREPRIO_Scheduler : public Scheduler {
   string get_scheduler();
   void show_run_queue();
   bool q_isEmpty(vector<list<Process*>>*);
+  bool test_preempt();
 };
 
 #endif

@@ -24,3 +24,6 @@ void FCFS_Scheduler::show_run_queue() {
   cout << endl;
 }
 
+bool FCFS_Scheduler::test_preempt() {
+  return false;
+}

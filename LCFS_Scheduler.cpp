@@ -23,3 +23,7 @@ void LCFS_Scheduler::show_run_queue() {
 
   cout << endl;
 }
+
+bool LCFS_Scheduler::test_preempt() {
+  return false;
+}
