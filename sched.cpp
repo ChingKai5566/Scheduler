@@ -427,13 +427,12 @@ Scheduler* getScheduler(string& s_value, int& q, int& max_prio) {
   }
 
   if (s_value[0] == 'P') {
+    q = 0;
     int idx = 1;
 
     if (idx == s_value.length()) {
       return new PRIO_Scheduler(q, max_prio);
     }
-
-    q = 0;
 
     while (idx != s_value.length() && s_value[idx] != ':') {
       q = q * 10 + (s_value[idx] - '0');
@@ -453,13 +452,8 @@ Scheduler* getScheduler(string& s_value, int& q, int& max_prio) {
   }
 
   if (s_value[0] == 'E') {
-    int idx = 1;
-
-    if (idx == s_value.length()) {
-      return new PRIO_Scheduler(q, max_prio);
-    }
-
     q = 0;
+    int idx = 1;
     while (idx != s_value.length() && s_value[idx] != ':') {
       q = q * 10 + (s_value[idx] - '0');
       idx++;
